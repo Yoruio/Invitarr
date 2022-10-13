@@ -23,8 +23,9 @@ if switch == 0:
 class Bot(commands.Bot):
     def __init__(self) -> None:
         print("Initializing Discord bot")
-        intents = discord.Intents.default()
+        intents = discord.Intents.all()
         intents.members = True
+        intents.message_content = True
         super().__init__(command_prefix=".", intents=intents)
 
     async def on_ready(self):
