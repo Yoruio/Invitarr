@@ -241,7 +241,7 @@ async def setupplexlibs(interaction: discord.Interaction, libraries:str):
         libraries = ",".join(list(map(lambda lib: lib.strip(),libraries.split(","))))
         confighelper.change_config("plex_libs", str(libraries))
         print("Plex libraries updated. Restarting bot. Please wait.")
-        await interaction.response.send_message("Jellyfin libraries updated. Please wait a few seconds for bot to restart.", ephemeral=True)
+        await interaction.response.send_message("Plex libraries updated. Please wait a few seconds for bot to restart.", ephemeral=True)
         await reload()
         print("Bot has been restarted. Give it a few seconds.")
 
