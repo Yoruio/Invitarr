@@ -123,11 +123,11 @@ async def setupplex(interaction: discord.Interaction, username: str, password: s
         # Save new config entries
         confighelper.change_config("plex_base_url", plex._baseurl if base_url == "" else base_url)
         confighelper.change_config("plex_token", plex._token)
+        confighelper.change_config("plex_server_name", server_name)
 
         # Delete old config entries
         confighelper.change_config("plex_user", "")
         confighelper.change_config("plex_pass", "")
-        confighelper.change_config("plex_server_name", "")
     else:
         # Save new config entries
         confighelper.change_config("plex_user", username)
