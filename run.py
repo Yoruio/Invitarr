@@ -248,7 +248,7 @@ async def setupplexlibs(interaction: discord.Interaction, libraries:str):
 @jellyfin_commands.command(name="setuplibs", description="Setup libraries that new users can access")
 @app_commands.checks.has_permissions(administrator=True)
 async def setupjellylibs(interaction: discord.Interaction, libraries:str):
-    if not libraries is None:
+    if not libraries:
         await embederror(interaction.response, "libraries string is empty.")
         return
     else:
