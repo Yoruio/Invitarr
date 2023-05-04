@@ -156,8 +156,8 @@ class app(commands.Cog):
     
     async def getemail(self, after):
         email = None
-        await embedinfo(after,'Welcome To '+ PLEX_SERVER_NAME +'. Just reply with your email so we can add you to Plex!')
-        await embedinfo(after,'I will wait 24 hours for your message, if you do not send it by then I will cancel the command.')
+        await embedinfo(after,'Welcome To '+ PLEX_SERVER_NAME +'. Please reply with your email to be added to the Plex server!')
+        await embedinfo(after,'If you do not respond within 24 hours, the request will be cancelled, and the server admin will need to add you manually.')
         while(email == None):
             def check(m):
                 return m.author == after and not m.guild
@@ -167,18 +167,18 @@ class app(commands.Cog):
                     return str(email.content)
                 else:
                     email = None
-                    message = "Invalid email. Please just type in your email and nothing else."
+                    message = "The email you provided is invalid, please respond only with the email you used to sign up for Plex."
                     await embederror(after, message)
                     continue
             except asyncio.TimeoutError:
-                message = "Timed Out. Message Server Admin with your email so They Can Add You Manually."
+                message = "Timed out. Please contact the server admin directly."
                 await embederror(after, message)
                 return None
     
     async def getusername(self, after):
         username = None
-        await embedinfo(after, f"Welcome To Jellyfin! Just reply with a username for Jellyfin so we can add you!")
-        await embedinfo(after, f"I will wait 24 hours for your message, if you do not send it by then I will cancel the command.")
+        await embedinfo(after, f"Welcome To Jellyfin! Please reply with your email to be added to the Plex server!")
+        await embedinfo(after, f"If you do not respond within 24 hours, the request will be cancelled, and the server admin will need to add you manually.")
         while (username is None):
             def check(m):
                 return m.author == after and not m.guild
@@ -188,11 +188,11 @@ class app(commands.Cog):
                     return str(username.content)
                 else:
                     username = None
-                    message = "This username is already choosen. Please select another Username."
+                    message = "This username is already choosen. Please select another username."
                     await embederror(after, message)
                     continue
             except asyncio.TimeoutError:
-                message = "Timed Out. Message Server Admin with your preferred username so They Can Add You Manually."
+                message = "Timed out. Please contact the server admin directly."
                 print("Jellyfin user prompt timed out")
                 await embederror(after, message)
                 return None
