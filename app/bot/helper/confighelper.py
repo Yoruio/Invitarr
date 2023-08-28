@@ -69,9 +69,9 @@ except:
 
 # Get Plex config
 try:
+    PLEX_SERVER_NAME = config.get(BOT_SECTION, 'plex_server_name')
     PLEXUSER = config.get(BOT_SECTION, 'plex_user')
     PLEXPASS = config.get(BOT_SECTION, 'plex_pass')
-    PLEX_SERVER_NAME = config.get(BOT_SECTION, 'plex_server_name')
 except:
     print("No Plex login info found")
     if not plex_token_configured:

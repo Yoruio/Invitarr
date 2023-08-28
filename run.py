@@ -20,6 +20,7 @@ if switch == 0:
     print("Missing Config.")
     sys.exit()
 
+
 class Bot(commands.Bot):
     def __init__(self) -> None:
         print("Initializing Discord bot")
@@ -34,28 +35,32 @@ class Bot(commands.Bot):
             print("Syncing commands to " + guild.name)
             self.tree.copy_global_to(guild=guild)
             await self.tree.sync(guild=guild)
-    
+
     async def on_guild_join(self, guild):
         print(f"Joined guild {guild.name}")
         print(f"Syncing commands to {guild.name}")
         self.tree.copy_global_to(guild=guild)
         await self.tree.sync(guild=guild)
-    
+
     async def setup_hook(self):
         print("Loading media server connectors")
         await self.load_extension(f'app.bot.cogs.app')
 
+
 bot = Bot()
+
 
 async def reload():
     await bot.reload_extension(f'app.bot.cogs.app')
 
+
 async def getuser(interaction, server, type):
     value = None
     await interaction.user.send("Please reply with your {} {}:".format(server, type))
-    while(value == None):
+    while (value == None):
         def check(m):
             return m.author == interaction.user and not m.guild
+
         try:
             value = await bot.wait_for('message', timeout=200, check=check)
             return value.content
@@ -63,8 +68,10 @@ async def getuser(interaction, server, type):
             message = "Timed Out. Try again."
             return None
 
+
 plex_commands = app_commands.Group(name="plexsettings", description="Membarr Plex commands")
 jellyfin_commands = app_commands.Group(name="jellyfinsettings", description="Membarr Jellyfin commands")
+
 
 @plex_commands.command(name="addrole", description="Add a role to automatically add users to Plex")
 @app_commands.checks.has_permissions(administrator=True)
@@ -77,14 +84,12 @@ async def plexroleadd(interaction: discord.Interaction, role: discord.Role):
 
         plex_roles.append(role.name)
         saveroles = ",".join(plex_roles)
-        plex_button = Button(label = "Plex")
-        view = View()
-        view.add_item(plex_button)
         confighelper.change_config("plex_roles", saveroles)
         await interaction.response.send_message("Updated Plex roles. Bot is restarting. Please wait.", ephemeral=True)
         print("Plex roles updated. Restarting bot, Give it a few seconds.")
         await reload()
         print("Bot has been restarted. Give it a few seconds.")
+
 
 @plex_commands.command(name="removerole", description="Stop adding users with a role to Plex")
 @app_commands.checks.has_permissions(administrator=True)
@@ -93,8 +98,9 @@ async def plexroleremove(interaction: discord.Interaction, role: discord.Role):
         await embederror(interaction.response, f"\"{role.name}\" is currently not a Plex role.")
         return
     plex_roles.remove(role.name)
-    confighelper.change_config("jellyfin_roles", ",".join(plex_roles))
+    confighelper.change_config("plex_roles", ",".join(plex_roles))
     await interaction.response.send_message(f"Membarr will stop auto-adding \"{role.name}\" to Plex", ephemeral=True)
+
 
 @plex_commands.command(name="listroles", description="List all roles whose members will be automatically added to Plex")
 @app_commands.checks.has_permissions(administrator=True)
@@ -104,9 +110,11 @@ async def plexrolels(interaction: discord.Interaction):
         ", ".join(plex_roles), ephemeral=True
     )
 
+
 @plex_commands.command(name="setup", description="Setup Plex integration")
 @app_commands.checks.has_permissions(administrator=True)
-async def setupplex(interaction: discord.Interaction, username: str, password: str, server_name: str, base_url: str = "", save_token: bool = True):
+async def setupplex(interaction: discord.Interaction, username: str, password: str, server_name: str,
+                    base_url: str = "", save_token: bool = True):
     await interaction.response.defer()
     try:
         account = MyPlexAccount(username, password)
@@ -115,11 +123,11 @@ async def setupplex(interaction: discord.Interaction, username: str, password: s
         if str(e).startswith("(429)"):
             await embederror(interaction.followup, "Too many requests. Please try again later.")
             return
-        
+
         await embederror(interaction.followup, "Could not connect to Plex server. Please check your credentials.")
         return
-    
-    if (save_token):        
+
+    if (save_token):
         # Save new config entries
         confighelper.change_config("plex_base_url", plex._baseurl if base_url == "" else base_url)
         confighelper.change_config("plex_token", plex._token)
@@ -138,7 +146,6 @@ async def setupplex(interaction: discord.Interaction, username: str, password: s
         confighelper.change_config("plex_base_url", "")
         confighelper.change_config("plex_token", "")
 
-
     print("Plex authentication details updated. Restarting bot.")
     await interaction.followup.send(
         "Plex authentication details updated. Restarting bot. Please wait.\n" +
@@ -148,7 +155,8 @@ async def setupplex(interaction: discord.Interaction, username: str, password: s
     await reload()
     print("Bot has been restarted. Give it a few seconds.")
 
-@jellyfin_commands.command(name="addrole", description="Add a role to automatically add users to Jellyfin")           
+
+@jellyfin_commands.command(name="addrole", description="Add a role to automatically add users to Jellyfin")
 @app_commands.checks.has_permissions(administrator=True)
 async def jellyroleadd(interaction: discord.Interaction, role: discord.Role):
     if len(jellyfin_roles) <= maxroles:
@@ -160,10 +168,12 @@ async def jellyroleadd(interaction: discord.Interaction, role: discord.Role):
         jellyfin_roles.append(role.name)
         saveroles = ",".join(jellyfin_roles)
         confighelper.change_config("jellyfin_roles", saveroles)
-        await interaction.response.send_message("Updated Jellyfin roles. Bot is restarting. Please wait a few seconds.", ephemeral=True)
+        await interaction.response.send_message("Updated Jellyfin roles. Bot is restarting. Please wait a few seconds.",
+                                                ephemeral=True)
         print("Jellyfin roles updated. Restarting bot.")
         await reload()
         print("Bot has been restarted. Give it a few seconds.")
+
 
 @jellyfin_commands.command(name="removerole", description="Stop adding users with a role to Jellyfin")
 @app_commands.checks.has_permissions(administrator=True)
@@ -173,15 +183,19 @@ async def jellyroleremove(interaction: discord.Interaction, role: discord.Role):
         return
     jellyfin_roles.remove(role.name)
     confighelper.change_config("jellyfin_roles", ",".join(jellyfin_roles))
-    await interaction.response.send_message(f"Membarr will stop auto-adding \"{role.name}\" to Jellyfin", ephemeral=True)
+    await interaction.response.send_message(f"Membarr will stop auto-adding \"{role.name}\" to Jellyfin",
+                                            ephemeral=True)
 
-@jellyfin_commands.command(name="listroles", description="List all roles whose members will be automatically added to Jellyfin")
+
+@jellyfin_commands.command(name="listroles",
+                           description="List all roles whose members will be automatically added to Jellyfin")
 @app_commands.checks.has_permissions(administrator=True)
 async def jellyrolels(interaction: discord.Interaction):
     await interaction.response.send_message(
         "The following roles are being automatically added to Jellyfin:\n" +
         ", ".join(jellyfin_roles), ephemeral=True
     )
+
 
 @jellyfin_commands.command(name="setup", description="Setup Jellyfin integration")
 @app_commands.checks.has_permissions(administrator=True)
@@ -207,9 +221,11 @@ async def setupjelly(interaction: discord.Interaction, server_url: str, api_key:
             await embederror(interaction.followup, "Server endpoint provided was not found")
             return
         else:
-            await embederror(interaction.followup, "Unknown error occurred while connecting to Jellyfin. Check Membarr logs.")
+            await embederror(interaction.followup,
+                             "Unknown error occurred while connecting to Jellyfin. Check Membarr logs.")
     except ConnectTimeout as e:
-        await embederror(interaction.followup, "Connection to server timed out. Check that Jellyfin is online and reachable.")
+        await embederror(interaction.followup,
+                         "Connection to server timed out. Check that Jellyfin is online and reachable.")
         return
     except Exception as e:
         print("Exception while testing Jellyfin connection")
@@ -217,7 +233,7 @@ async def setupjelly(interaction: discord.Interaction, server_url: str, api_key:
         print(e)
         await embederror(interaction.followup, "Unknown exception while connecting to Jellyfin. Check Membarr logs")
         return
-    
+
     confighelper.change_config("jellyfin_server_url", str(server_url))
     confighelper.change_config("jellyfin_api_key", str(api_key))
     if external_url is not None:
@@ -232,33 +248,37 @@ async def setupjelly(interaction: discord.Interaction, server_url: str, api_key:
 
 @plex_commands.command(name="setuplibs", description="Setup libraries that new users can access")
 @app_commands.checks.has_permissions(administrator=True)
-async def setupplexlibs(interaction: discord.Interaction, libraries:str):
+async def setupplexlibs(interaction: discord.Interaction, libraries: str):
     if not libraries:
         await embederror(interaction.response, "libraries string is empty.")
         return
     else:
         # Do some fancy python to remove spaces from libraries string, but only where wanted.
-        libraries = ",".join(list(map(lambda lib: lib.strip(),libraries.split(","))))
+        libraries = ",".join(list(map(lambda lib: lib.strip(), libraries.split(","))))
         confighelper.change_config("plex_libs", str(libraries))
         print("Plex libraries updated. Restarting bot. Please wait.")
-        await interaction.response.send_message("Plex libraries updated. Please wait a few seconds for bot to restart.", ephemeral=True)
+        await interaction.response.send_message("Plex libraries updated. Please wait a few seconds for bot to restart.",
+                                                ephemeral=True)
         await reload()
         print("Bot has been restarted. Give it a few seconds.")
 
+
 @jellyfin_commands.command(name="setuplibs", description="Setup libraries that new users can access")
 @app_commands.checks.has_permissions(administrator=True)
-async def setupjellylibs(interaction: discord.Interaction, libraries:str):
+async def setupjellylibs(interaction: discord.Interaction, libraries: str):
     if not libraries:
         await embederror(interaction.response, "libraries string is empty.")
         return
     else:
         # Do some fancy python to remove spaces from libraries string, but only where wanted.
-        libraries = ",".join(list(map(lambda lib: lib.strip(),libraries.split(","))))
+        libraries = ",".join(list(map(lambda lib: lib.strip(), libraries.split(","))))
         confighelper.change_config("jellyfin_libs", str(libraries))
         print("Jellyfin libraries updated. Restarting bot. Please wait.")
-        await interaction.response.send_message("Jellyfin libraries updated. Please wait a few seconds for bot to restart.", ephemeral=True)
+        await interaction.response.send_message(
+            "Jellyfin libraries updated. Please wait a few seconds for bot to restart.", ephemeral=True)
         await reload()
         print("Bot has been restarted. Give it a few seconds.")
+
 
 # Enable / Disable Plex integration
 @plex_commands.command(name="enable", description="Enable auto-adding users to Plex")
@@ -274,6 +294,7 @@ async def enableplex(interaction: discord.Interaction):
     await interaction.response.send_message("Plex enabled. Restarting server. Give it a few seconds.", ephemeral=True)
     print("Bot has restarted. Give it a few seconds.")
 
+
 @plex_commands.command(name="disable", description="Disable adding users to Plex")
 @app_commands.checks.has_permissions(administrator=True)
 async def disableplex(interaction: discord.Interaction):
@@ -287,6 +308,7 @@ async def disableplex(interaction: discord.Interaction):
     await interaction.response.send_message("Plex disabled. Restarting server. Give it a few seconds.", ephemeral=True)
     print("Bot has restarted. Give it a few seconds.")
 
+
 # Enable / Disable Jellyfin integration
 @jellyfin_commands.command(name="enable", description="Enable adding users to Jellyfin")
 @app_commands.checks.has_permissions(administrator=True)
@@ -298,10 +320,12 @@ async def enablejellyfin(interaction: discord.Interaction):
     print("Jellyfin enabled, reloading server")
     confighelper.USE_JELLYFIN = True
     await reload()
-    await interaction.response.send_message("Jellyfin enabled. Restarting server. Give it a few seconds.", ephemeral=True)
+    await interaction.response.send_message("Jellyfin enabled. Restarting server. Give it a few seconds.",
+                                            ephemeral=True)
     print("Bot has restarted. Give it a few seconds.")
 
-@jellyfin_commands.command(name="disable", description = "Disable adding users to Jellyfin")
+
+@jellyfin_commands.command(name="disable", description="Disable adding users to Jellyfin")
 @app_commands.checks.has_permissions(administrator=True)
 async def disablejellyfin(interaction: discord.Interaction):
     if not confighelper.USE_JELLYFIN:
@@ -311,7 +335,8 @@ async def disablejellyfin(interaction: discord.Interaction):
     print("Jellyfin disabled, reloading server")
     await reload()
     confighelper.USE_JELLYFIN = False
-    await interaction.response.send_message("Jellyfin disabled. Restarting server. Give it a few seconds.", ephemeral=True)
+    await interaction.response.send_message("Jellyfin disabled. Restarting server. Give it a few seconds.",
+                                            ephemeral=True)
     print("Bot has restarted. Give it a few seconds.")
 
 
