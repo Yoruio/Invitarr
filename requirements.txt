@@ -1,5 +1,5 @@
 plex.py==0.9.0
-PlexAPI==4.15.15
+PlexAPI==4.15.16
 texttable
 python-dotenv
 requests
